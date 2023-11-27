@@ -10,7 +10,7 @@ import (
 const UTILS = `package day{{.Day}}
 
 import (
-	"github.com/wincus/adventofcode2022/internal/common"
+	"github.com/wincus/adventofcode2023/internal/common"
 )
 
 // Solve returns the solutions for day {{.Day}}
@@ -24,7 +24,7 @@ const TEST = `package day{{.Day}}
 import (
 	"testing"
 
-	"github.com/wincus/adventofcode2022/internal/common"
+	"github.com/wincus/adventofcode2023/internal/common"
 )
 
 type Test struct {
@@ -63,8 +63,8 @@ const MAIN = `package main
 import (
 	"log"
 
-	"github.com/wincus/adventofcode2022/internal/common"
-	"github.com/wincus/adventofcode2022/internal/day{{.Day}}"
+	"github.com/wincus/adventofcode2023/internal/common"
+	"github.com/wincus/adventofcode2023/internal/day{{.Day}}"
 )
 
 func main() {

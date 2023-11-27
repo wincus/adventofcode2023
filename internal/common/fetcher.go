@@ -21,11 +21,11 @@ func GetData(n int) ([]string, error) {
 		return nil, fmt.Errorf("SESSION env not found")
 	}
 
-	// https://adventofcode.com/2022/day/%v/input
+	// https://adventofcode.com/2023/day/%v/input
 	u := &url.URL{
 		Scheme: "https",
 		Host:   "adventofcode.com",
-		Path:   fmt.Sprintf("%v/day/%v/input", 2022, n),
+		Path:   fmt.Sprintf("%v/day/%v/input", 2023, n),
 	}
 
 	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
