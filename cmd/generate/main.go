@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/wincus/adventofcode2022/internal/common"
+	"github.com/wincus/adventofcode2023/internal/common"
 )
 
 func main() {
