@@ -16,14 +16,27 @@ func TestSolver(t *testing.T) {
 
 	tests := []Test{
 		{
-			input: []string{},
-			p:     common.Part1,
-			want:  0,
+			input: []string{
+				"1abc2",
+				"pqr3stu8vwx",
+				"a1b2c3d4e5f",
+				"treb7uchet",
+			},
+			p:    common.Part1,
+			want: 142,
 		},
 		{
-			input: []string{},
-			p:     common.Part2,
-			want:  0,
+			input: []string{
+				"two1nine",
+				"eightwothree",
+				"abcone2threexyz",
+				"xtwone3four",
+				"4nineeightseven2",
+				"zoneight234",
+				"7pqrstsixteen",
+			},
+			p:    common.Part2,
+			want: 281,
 		},
 	}
 
