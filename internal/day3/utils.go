@@ -10,7 +10,7 @@ import (
 type partChar struct {
 	c     rune
 	valid bool
-	gears []gear
+	gears map[gear]bool
 }
 
 // part is a struct that represents a part of a number
@@ -19,7 +19,7 @@ type partChar struct {
 type part struct {
 	value int
 	valid bool
-	gears []gear
+	gears map[gear]bool
 }
 
 // gear is a struct that represents a gear
@@ -125,7 +125,7 @@ func getPart(partChars []partChar) part {
 
 	var p part
 
-	var g []gear
+	var g = make(map[gear]bool)
 
 	var number int
 
@@ -136,21 +136,8 @@ func getPart(partChars []partChar) part {
 		}
 
 		// merge all the gears found in the part
-		for _, gear := range pc.gears {
-
-			// check if the gear is already in the list
-			var found bool
-
-			for _, x := range g {
-				if x.row == gear.row && x.col == gear.col {
-					found = true
-					break
-				}
-			}
-
-			if !found {
-				g = append(g, gear)
-			}
+		for k, v := range pc.gears {
+			g[k] = v
 		}
 	}
 
@@ -159,7 +146,6 @@ func getPart(partChars []partChar) part {
 	p.gears = g
 
 	return p
-
 }
 
 // isPartValid iterates over all the chars found in a part and returns true
@@ -220,9 +206,9 @@ func isValid(row, col int, grid [][]rune) bool {
 
 // getGears returns a slice of gears found in the grid
 // next to a partChar located at row, col
-func getGears(row, col int, grid [][]rune) []gear {
+func getGears(row, col int, grid [][]rune) map[gear]bool {
 
-	var gears []gear
+	var gears = make(map[gear]bool)
 
 	for _, r := range []int{-1, 0, 1} {
 		for _, c := range []int{-1, 0, 1} {
@@ -239,10 +225,7 @@ func getGears(row, col int, grid [][]rune) []gear {
 
 			// append gears
 			if grid[row+r][col+c] == '*' {
-				gears = append(gears, gear{
-					row: row + r,
-					col: col + c,
-				})
+				gears[gear{row: row + r, col: col + c}] = true
 			}
 		}
 	}
@@ -255,17 +238,17 @@ func findGearRatioSum(parts []part) int {
 
 	var total int
 
-	var gears = make(map[gear]bool)
+	var allGears = make(map[gear]bool)
 
 	// get uniq gears
 	for _, p := range parts {
-		for _, g := range p.gears {
-			gears[g] = true
+		for k, g := range p.gears {
+			allGears[k] = g
 		}
 	}
 
 	// for each gear find the parts that include it
-	for k := range gears {
+	for k := range allGears {
 		total += getGearRatio(parts, k)
 	}
 
@@ -283,8 +266,8 @@ func getGearRatio(parts []part, g gear) int {
 			continue
 		}
 
-		for _, x := range p.gears {
-			if g.row == x.row && g.col == x.col {
+		for k, x := range p.gears {
+			if k == g && x {
 				found = append(found, p)
 			}
 		}
