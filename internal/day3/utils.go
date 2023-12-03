@@ -5,28 +5,30 @@ import (
 )
 
 // partChar is a struct that represents a character found in a part
+// includes a list of gears surrounding the character
 // is considered valid if it is surrounded by special characters
 type partChar struct {
 	c     rune
 	valid bool
-	// g     gear
+	gears []gear
 }
 
 // part is a struct that represents a part of a number
+// includes a list of gears surrounding the part
 // is considered valid if at least one of the characters is valid
 type part struct {
 	value int
 	valid bool
-	// gears []gear
+	gears []gear
 }
 
-// // gear is a struct that represents a gear
-// // is considered valid if it is surrounded by _exactly_
-// // two parts
-// type gear struct {
-// 	row int
-// 	col int
-// }
+// gear is a struct that represents a gear
+// is considered valid if it is surrounded by _exactly_
+// two parts
+type gear struct {
+	row int
+	col int
+}
 
 // Solve returns the solutions for day 3
 func Solve(s []string, p common.Part) int {
@@ -34,9 +36,10 @@ func Solve(s []string, p common.Part) int {
 	var sum int
 
 	grid := getGrid(s)
+	parts := getParts(grid)
 
 	if p == common.Part1 {
-		for _, x := range getParts(grid) {
+		for _, x := range parts {
 			if x.valid {
 				sum += x.value
 			}
@@ -44,9 +47,7 @@ func Solve(s []string, p common.Part) int {
 	}
 
 	if p == common.Part2 {
-		for _, x := range getGears(grid) {
-			sum += x.value
-		}
+		sum = findGearRatioSum(parts)
 	}
 
 	return sum
@@ -92,12 +93,14 @@ func getParts(grid [][]rune) []part {
 		// for each rune in the row
 		for colNumber, r := range row {
 
-			// if the rune is a number, add it to the list of numbers
+			// if the rune is a number, create a new partChar and append it
+			// to the current list of partChars
 			if r >= '0' && r <= '9' {
 
 				currentpartChars = append(currentpartChars, partChar{
 					c:     r,
 					valid: isValid(rowNumber, colNumber, grid),
+					gears: getGears(rowNumber, colNumber, grid),
 				})
 
 			} else {
@@ -122,6 +125,8 @@ func getPart(partChars []partChar) part {
 
 	var p part
 
+	var g []gear
+
 	var number int
 
 	for _, pc := range partChars {
@@ -129,10 +134,29 @@ func getPart(partChars []partChar) part {
 		if pc.c >= '0' && pc.c <= '9' {
 			number = number*10 + int(pc.c-'0')
 		}
+
+		// merge all the gears found in the part
+		for _, gear := range pc.gears {
+
+			// check if the gear is already in the list
+			var found bool
+
+			for _, x := range g {
+				if x.row == gear.row && x.col == gear.col {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				g = append(g, gear)
+			}
+		}
 	}
 
 	p.value = number
 	p.valid = isPartValid(partChars)
+	p.gears = g
 
 	return p
 
@@ -191,5 +215,85 @@ func isValid(row, col int, grid [][]rune) bool {
 	}
 
 	return false
+
+}
+
+// getGears returns a slice of gears found in the grid
+// next to a partChar located at row, col
+func getGears(row, col int, grid [][]rune) []gear {
+
+	var gears []gear
+
+	for _, r := range []int{-1, 0, 1} {
+		for _, c := range []int{-1, 0, 1} {
+
+			// skip the current position
+			if r == 0 && c == 0 {
+				continue
+			}
+
+			// skip out of bounds
+			if row+r < 0 || row+r >= len(grid) || col+c < 0 || col+c >= len(grid[row+r]) {
+				continue
+			}
+
+			// append gears
+			if grid[row+r][col+c] == '*' {
+				gears = append(gears, gear{
+					row: row + r,
+					col: col + c,
+				})
+			}
+		}
+	}
+
+	return gears
+
+}
+
+func findGearRatioSum(parts []part) int {
+
+	var total int
+
+	var gears = make(map[gear]bool)
+
+	// get uniq gears
+	for _, p := range parts {
+		for _, g := range p.gears {
+			gears[g] = true
+		}
+	}
+
+	// for each gear find the parts that include it
+	for k := range gears {
+		total += getGearRatio(parts, k)
+	}
+
+	return total
+
+}
+
+func getGearRatio(parts []part, g gear) int {
+
+	var found []part
+
+	for _, p := range parts {
+
+		if !p.valid {
+			continue
+		}
+
+		for _, x := range p.gears {
+			if g.row == x.row && g.col == x.col {
+				found = append(found, p)
+			}
+		}
+	}
+
+	if len(found) == 2 {
+		return found[0].value * found[1].value
+	}
+
+	return 0
 
 }
